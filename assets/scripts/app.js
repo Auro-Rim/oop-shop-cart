@@ -1,5 +1,5 @@
 class Product {
-  constructor(title, image, desc, price) {
+  constructor(title = "DEFAULT", image, desc, price) {
     this.title = title;
     this.imageURL = image;
     this.description = desc;
@@ -10,9 +10,25 @@ class Product {
 class ShoppingCart {
   items = [];
 
+  set cartItems(value) {
+    this.items = value;
+    this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
+      2
+    )}</h2>`;
+  }
+
+  get totalAmount() {
+    const sum = this.items.reduce(
+      (prevVal, curItem) => prevVal + curItem.price,
+      0
+    );
+    return sum;
+  }
+
   addProduct(product) {
-    this.items.push(product);
-    this.totalOutput.innerHTML = `<h2>Total: \$${1}</h2>`;
+    const updatedItems = [...this.items];
+    updatedItems.push(product);
+    this.cartItems = updatedItems;
   }
 
   render() {
@@ -33,6 +49,8 @@ class ProductItem {
   }
 
   addToCart() {
+    console.log(this);
+
     App.addProductToCart(this.product);
   }
 
@@ -66,6 +84,12 @@ class ProductList {
     ),
     new Product(
       "A carpet",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcShvIv8paIKbRhohHuPR2Dg0wSvXCtsgXRH0uc9Ny9wc0T9Bw0T&usqp=CAU",
+      "A carpet which you might like - or not.",
+      89.99
+    ),
+    new Product(
+      undefined,
       "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcShvIv8paIKbRhohHuPR2Dg0wSvXCtsgXRH0uc9Ny9wc0T9Bw0T&usqp=CAU",
       "A carpet which you might like - or not.",
       89.99
