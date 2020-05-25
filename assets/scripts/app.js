@@ -1,7 +1,7 @@
 class Product {
-  constructor(title = "DEFAULT", image, desc, price) {
+  constructor(title, image, desc, price) {
     this.title = title;
-    this.imageURL = image;
+    this.imageUrl = image;
     this.description = desc;
     this.price = price;
   }
@@ -42,6 +42,15 @@ class Component {
 class ShoppingCart extends Component {
   items = [];
 
+  constructor(renderHookId) {
+    super(renderHookId, false);
+    this.orderProducts = () => {
+      console.log('Ordering...');
+      console.log(this.items);
+    };
+    this.render();
+  }
+
   set cartItems(value) {
     this.items = value;
     this.totalOutput.innerHTML = `<h2>Total: \$${this.totalAmount.toFixed(
@@ -51,14 +60,10 @@ class ShoppingCart extends Component {
 
   get totalAmount() {
     const sum = this.items.reduce(
-      (prevVal, curItem) => prevVal + curItem.price,
+      (prevValue, curItem) => prevValue + curItem.price,
       0
     );
     return sum;
-  }
-
-  constructor(renderHookId) {
-    super(renderHookId);
   }
 
   addProduct(product) {
@@ -68,12 +73,17 @@ class ShoppingCart extends Component {
   }
 
   render() {
-    const cartEl = this.createRootElement("section", "cart");
+    const cartEl = this.createRootElement('section', 'cart');
     cartEl.innerHTML = `
-    <h2>Total: \$${0}</h2>
-    <button>Order Now!</button>
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
     `;
-    this.totalOutput = cartEl.querySelector("h2");
+    const orderButton = cartEl.querySelector('button');
+    // another solution with undefined is annon arrow function
+    // orderButton.addEventListener("click", this.orderProducts.bind(this));
+    // orderButton.addEventListener('click', () => this.orderProducts());
+    orderButton.addEventListener('click', this.orderProducts);
+    this.totalOutput = cartEl.querySelector('h2');
   }
 }
 
@@ -85,54 +95,48 @@ class ProductItem extends Component {
   }
 
   addToCart() {
-    console.log(this);
     App.addProductToCart(this.product);
   }
 
   render() {
-    const prodEl = this.createRootElement("li", "product-item");
+    const prodEl = this.createRootElement('li', 'product-item');
     prodEl.innerHTML = `
         <div>
-            <img src="${this.product.imageURL}" alt="${this.product.title}">
-            <div class="product-item__content">
-                <h2>${this.product.title}</h2>
-                <h3>\$${this.product.price}</h3>
-                <p>${this.product.description}</p>
-                <button>Add to Cart</button>
-            </div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
         </div>
       `;
-    const addCartButton = prodEl.querySelector("button");
-    addCartButton.addEventListener("click", this.addToCart.bind(this));
+    const addCartButton = prodEl.querySelector('button');
+    addCartButton.addEventListener('click', this.addToCart.bind(this));
   }
 }
 
 class ProductList extends Component {
-  products = [];
+  #products = [];
 
   constructor(renderHookId) {
-    super(renderHookId);
+    super(renderHookId, false);
+    this.render();
     this.fetchProducts();
   }
 
   fetchProducts() {
-    this.products = [
+    this.#products = [
       new Product(
-        "A pillow",
-        "https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1573576982-amazonbasics-soft-pillow-2-pack-1573576934.jpg",
-        "A soft pillow!",
+        'A Pillow',
+        'https://www.serta.com/sites/ssb/serta.com/uploads/2018/accessories/pillows/Cool%20Comfy%20Queen/CoolComfy1.jpg',
+        'A soft pillow!',
         19.99
       ),
       new Product(
-        "A carpet",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcShvIv8paIKbRhohHuPR2Dg0wSvXCtsgXRH0uc9Ny9wc0T9Bw0T&usqp=CAU",
-        "A carpet which you might like - or not.",
-        89.99
-      ),
-      new Product(
-        undefined,
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcShvIv8paIKbRhohHuPR2Dg0wSvXCtsgXRH0uc9Ny9wc0T9Bw0T&usqp=CAU",
-        "A carpet which you might like - or not.",
+        'A Carpet',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
+        'A carpet which you might like - or not.',
         89.99
       ),
     ];
@@ -140,16 +144,16 @@ class ProductList extends Component {
   }
 
   renderProducts() {
-    for (const prod of this.products) {
-      new ProductItem(prod, "prod-list");
+    for (const prod of this.#products) {
+      new ProductItem(prod, 'prod-list');
     }
   }
 
   render() {
-    this.createRootElement("ul", "product-list", [
-      new ElementAttribute("id", "prod-list"),
+    this.createRootElement('ul', 'product-list', [
+      new ElementAttribute('id', 'prod-list'),
     ]);
-    if (this.products && this.products.length > 0) {
+    if (this.#products && this.#products.length > 0) {
       this.renderProducts();
     }
   }
@@ -161,8 +165,8 @@ class Shop {
   }
 
   render() {
-    this.cart = new ShoppingCart("app");
-    new ProductList("app");
+    this.cart = new ShoppingCart('app');
+    new ProductList('app');
   }
 }
 
